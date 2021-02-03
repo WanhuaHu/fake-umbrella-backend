@@ -8,24 +8,35 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AppModule = void 0;
 const common_1 = require("@nestjs/common");
-const app_controller_1 = require("./app.controller");
-const app_service_1 = require("./app.service");
+const config_1 = require("@nestjs/config");
 const mongoose_1 = require("@nestjs/mongoose");
+const redis_cache_module_1 = require("./redis-cache/redis-cache.module");
+const app_controller_1 = require("./app.controller");
 const customer_module_1 = require("./customer/customer.module");
 const forecast_module_1 = require("./forecast/forecast.module");
-const DB_URL = 'mongodb://localhost/customers';
+const app_service_1 = require("./app.service");
 let AppModule = class AppModule {
 };
 AppModule = __decorate([
     common_1.Module({
         imports: [
-            mongoose_1.MongooseModule.forRoot(DB_URL, {
-                useNewUrlParser: true,
-                useFindAndModify: false,
+            config_1.ConfigModule.forRoot({
+                isGlobal: true,
+            }),
+            mongoose_1.MongooseModule.forRootAsync({
+                imports: [config_1.ConfigModule],
+                inject: [config_1.ConfigService],
+                useFactory: async (configService) => ({
+                    uri: configService.get('DB_URL'),
+                    useNewUrlParser: true,
+                    useUnifiedTopology: true,
+                    useFindAndModify: false,
+                }),
             }),
             common_1.HttpModule,
             customer_module_1.CustomerModule,
             forecast_module_1.ForecastModule,
+            redis_cache_module_1.RedisCacheModule,
         ],
         controllers: [app_controller_1.AppController],
         providers: [app_service_1.AppService],

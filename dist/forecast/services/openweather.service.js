@@ -12,15 +12,16 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.OpenweatherService = void 0;
 const common_1 = require("@nestjs/common");
 const axios_1 = require("axios");
-const WEATHER_API_KEY = '4a511633e9c55ee9ed5e7bc0d598f48f';
-const WEATHER_API_URL = 'https://api.openweathermap.org/data/2.5';
+const config_1 = require("@nestjs/config");
 let OpenweatherService = class OpenweatherService {
-    constructor(http) {
-        this.http = http;
+    constructor(configService) {
+        this.configService = configService;
+        this.WEATHER_API_KEY = this.configService.get('WEATHER_API_KEY');
+        this.WEATHER_API_URL = this.configService.get('WEATHER_API_URL');
     }
     async getWeatherForecastByCityNameAndCountryCode(cityName, countryCode) {
         try {
-            const result = axios_1.default.get(`${WEATHER_API_URL}/forecast?q=${cityName},${countryCode}&appid=${WEATHER_API_KEY}`);
+            const result = axios_1.default.get(`${this.WEATHER_API_URL}/forecast?q=${cityName},${countryCode}&appid=${this.WEATHER_API_KEY}`);
             return result.then((result) => result.data);
         }
         catch (error) {
@@ -31,7 +32,7 @@ let OpenweatherService = class OpenweatherService {
     async getWeatherForecastByZipCode(zipCode) {
         const countryCode = /^[A-Z]\d[A-Z] \d[A-Z]\d$/i.test(zipCode) ? 'ca' : 'us';
         try {
-            const result = axios_1.default.get(`${WEATHER_API_URL}/forecast?zip=${zipCode},${countryCode}&appid=${WEATHER_API_KEY}`);
+            const result = axios_1.default.get(`${this.WEATHER_API_URL}/forecast?zip=${zipCode},${countryCode}&appid=${this.WEATHER_API_KEY}`);
             return result.then((result) => result.data);
         }
         catch (error) {
@@ -41,7 +42,7 @@ let OpenweatherService = class OpenweatherService {
     }
     async getWeatherForecastByCityName(cityName) {
         try {
-            const result = axios_1.default.get(`${WEATHER_API_URL}/forecast?q=${cityName}&appid=${WEATHER_API_KEY}`);
+            const result = axios_1.default.get(`${this.WEATHER_API_URL}/forecast?q=${cityName}&appid=${this.WEATHER_API_KEY}`);
             return result.then((result) => result.data);
         }
         catch (error) {
@@ -51,7 +52,7 @@ let OpenweatherService = class OpenweatherService {
 };
 OpenweatherService = __decorate([
     common_1.Injectable(),
-    __metadata("design:paramtypes", [common_1.HttpService])
+    __metadata("design:paramtypes", [config_1.ConfigService])
 ], OpenweatherService);
 exports.OpenweatherService = OpenweatherService;
 //# sourceMappingURL=openweather.service.js.map

@@ -8,15 +8,17 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ForecastModule = void 0;
 const common_1 = require("@nestjs/common");
+const customer_module_1 = require("../customer/customer.module");
+const redis_cache_module_1 = require("../redis-cache/redis-cache.module");
 const forecast_service_1 = require("./services/forecast.service");
 const forecast_controller_1 = require("./forecast.controller");
-const customer_module_1 = require("../customer/customer.module");
 const openweather_service_1 = require("./services/openweather.service");
+const config_1 = require("@nestjs/config");
 let ForecastModule = class ForecastModule {
 };
 ForecastModule = __decorate([
     common_1.Module({
-        imports: [common_1.HttpModule, customer_module_1.CustomerModule],
+        imports: [common_1.HttpModule, customer_module_1.CustomerModule, redis_cache_module_1.RedisCacheModule, config_1.ConfigModule],
         controllers: [forecast_controller_1.ForecastController],
         providers: [forecast_service_1.ForecastService, openweather_service_1.OpenweatherService],
     })

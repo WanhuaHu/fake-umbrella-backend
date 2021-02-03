@@ -1,11 +1,23 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
+import * as swStats from 'swagger-stats';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, {
-//     logger: ['error', 'warn', 'log'],
-//     logger: console,
-  });
+  const app = await NestFactory.create(AppModule);
+  app.use(swStats.getMiddleware());
+
+  const APP_NAME = process.env.npm_package_name;
+  const APP_VERSION = process.env.npm_package_version;
+
+  const options = new DocumentBuilder()
+    .setTitle(APP_NAME)
+    .setDescription(`The ${APP_NAME} description`)
+    .setVersion(APP_VERSION)
+    .build();
+  const document = SwaggerModule.createDocument(app, options);
+  SwaggerModule.setup('api', app, document);
+
   app.enableCors();
   await app.listen(3000);
 }

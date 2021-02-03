@@ -13,7 +13,9 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.CustomerController = void 0;
+const openapi = require("@nestjs/swagger");
 const common_1 = require("@nestjs/common");
+const swagger_1 = require("@nestjs/swagger");
 const customer_service_1 = require("./customer.service");
 const create_customer_dto_1 = require("./dto/create-customer.dto");
 let CustomerController = class CustomerController {
@@ -21,71 +23,129 @@ let CustomerController = class CustomerController {
         this.customerService = customerService;
     }
     async getAllCustomer(res) {
-        const customers = await this.customerService.getAllCustomer();
-        return res.status(common_1.HttpStatus.OK).json(customers);
+        try {
+            const customers = await this.customerService.getAllCustomer();
+            return res.status(common_1.HttpStatus.OK).json(customers);
+        }
+        catch (error) {
+            return res.status(common_1.HttpStatus.INTERNAL_SERVER_ERROR).json(error.message);
+        }
     }
     async getCustomer(res, customerID) {
-        const customer = await this.customerService.getCustomer(customerID);
-        if (!customer)
-            throw new common_1.NotFoundException('Customer does not exist!');
-        return res.status(common_1.HttpStatus.OK).json(customer);
+        try {
+            const customer = await this.customerService.getCustomer(customerID);
+            if (!customer) {
+                return res.status(common_1.HttpStatus.NOT_FOUND).json('No customer found');
+            }
+            return res.status(common_1.HttpStatus.OK).json(customer);
+        }
+        catch (error) {
+            return res.status(common_1.HttpStatus.INTERNAL_SERVER_ERROR).json(error.message);
+        }
     }
     async addCustomer(res, createCustomerDTO) {
-        const customer = await this.customerService.addCustomer(createCustomerDTO);
-        return res.status(common_1.HttpStatus.OK).json({
-            message: 'Customer has been created successfully',
-            customer,
-        });
+        try {
+            const customer = await this.customerService.addCustomer(createCustomerDTO);
+            if (!customer) {
+                return res.status(common_1.HttpStatus.BAD_REQUEST).json('Bad request');
+            }
+            return res.status(common_1.HttpStatus.CREATED).json({
+                message: 'Customer has been created successfully',
+                customer,
+            });
+        }
+        catch (error) {
+            return res.status(common_1.HttpStatus.INTERNAL_SERVER_ERROR).json(error.message);
+        }
     }
     async deleteCustomer(res, customerID) {
-        const customer = await this.customerService.deleteCustomer(customerID);
-        if (!customer)
-            throw new common_1.NotFoundException('Customer does not exist');
-        return res.status(common_1.HttpStatus.OK).json({
-            message: 'Customer has been deleted',
-            customer,
-        });
+        try {
+            const customer = await this.customerService.deleteCustomer(customerID);
+            if (!customer) {
+                return res.status(common_1.HttpStatus.NOT_FOUND).json('No customer found');
+            }
+            return res.status(common_1.HttpStatus.OK).json({
+                message: 'Customer has been deleted',
+                customer,
+            });
+        }
+        catch (error) {
+            return res.status(common_1.HttpStatus.INTERNAL_SERVER_ERROR).json(error.message);
+        }
     }
     async updateCustomer(res, customerID, createCustomerDTO) {
-        const modifiedCustomer = await this.customerService.updateCustomer(customerID, createCustomerDTO);
-        if (!modifiedCustomer)
-            throw new common_1.NotFoundException('Customer does not exist!');
-        return res.status(common_1.HttpStatus.OK).json({
-            message: 'Customer has been successfully updated',
-            customer: modifiedCustomer,
-        });
+        try {
+            const modifiedCustomer = await this.customerService.updateCustomer(customerID, createCustomerDTO);
+            if (!modifiedCustomer) {
+                return res.status(common_1.HttpStatus.NOT_FOUND).json('No customer found');
+            }
+            return res.status(common_1.HttpStatus.OK).json({
+                message: 'Customer has been updated successfully',
+                customer: modifiedCustomer,
+            });
+        }
+        catch (error) {
+            return res.status(common_1.HttpStatus.INTERNAL_SERVER_ERROR).json(error.message);
+        }
     }
 };
 __decorate([
+    swagger_1.ApiOperation({ summary: 'Retrieve all customers' }),
+    swagger_1.ApiOkResponse({ description: 'Retrieved all customers successfully' }),
+    swagger_1.ApiInternalServerErrorResponse({ description: 'Internal server error' }),
     common_1.Get('customers'),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, common_1.Res()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], CustomerController.prototype, "getAllCustomer", null);
 __decorate([
+    swagger_1.ApiOperation({ summary: 'Retrieve a customer by ID' }),
+    swagger_1.ApiParam({ name: 'customerID', required: true, description: 'Unique identifier of customer' }),
+    swagger_1.ApiOkResponse({ description: 'Retrieved customer successfully' }),
+    swagger_1.ApiNotFoundResponse({ description: 'No customer found' }),
+    swagger_1.ApiInternalServerErrorResponse({ description: 'Internal server error' }),
     common_1.Get('customer/:customerID'),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, common_1.Res()), __param(1, common_1.Param('customerID')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], CustomerController.prototype, "getCustomer", null);
 __decorate([
+    swagger_1.ApiOperation({ summary: 'Create a new customer' }),
+    swagger_1.ApiCreatedResponse({ description: 'Created customer successfully' }),
+    swagger_1.ApiBadRequestResponse({ description: 'Bad request' }),
+    swagger_1.ApiInternalServerErrorResponse({ description: 'Internal server error' }),
     common_1.Post('customer'),
+    openapi.ApiResponse({ status: 201, type: Object }),
     __param(0, common_1.Res()), __param(1, common_1.Body()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, create_customer_dto_1.CreateCustomerDTO]),
     __metadata("design:returntype", Promise)
 ], CustomerController.prototype, "addCustomer", null);
 __decorate([
+    swagger_1.ApiOperation({ summary: 'Delete a customer by ID' }),
+    swagger_1.ApiParam({ name: 'customerID', required: true, description: 'Unique identifier of customer' }),
+    swagger_1.ApiOkResponse({ description: 'Customer has been deleted' }),
+    swagger_1.ApiNotFoundResponse({ description: 'No customer found' }),
+    swagger_1.ApiInternalServerErrorResponse({ description: 'Internal server error' }),
     common_1.Delete('customer/:customerID'),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, common_1.Res()), __param(1, common_1.Param('customerID')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], CustomerController.prototype, "deleteCustomer", null);
 __decorate([
+    swagger_1.ApiOperation({ summary: 'Update a customer' }),
+    swagger_1.ApiParam({ name: 'customerID', required: true, description: 'Unique identifier of customer' }),
+    swagger_1.ApiOkResponse({ description: 'Customer has been successfully updated' }),
+    swagger_1.ApiNotFoundResponse({ description: 'No customer found' }),
+    swagger_1.ApiInternalServerErrorResponse({ description: 'Internal server error' }),
     common_1.Put('customer'),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, common_1.Res()),
     __param(1, common_1.Query('customerID')),
     __param(2, common_1.Body()),
@@ -94,7 +154,8 @@ __decorate([
     __metadata("design:returntype", Promise)
 ], CustomerController.prototype, "updateCustomer", null);
 CustomerController = __decorate([
-    common_1.Controller(),
+    swagger_1.ApiTags('customer'),
+    common_1.Controller(''),
     __metadata("design:paramtypes", [customer_service_1.CustomerService])
 ], CustomerController);
 exports.CustomerController = CustomerController;

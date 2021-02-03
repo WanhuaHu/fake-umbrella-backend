@@ -22,22 +22,27 @@ let CustomerService = class CustomerService {
     }
     async getAllCustomer() {
         const customers = await this.customerModel.find().exec();
+        common_1.Logger.log('retrieved all customers: ' + customers.length);
         return customers;
     }
     async getCustomer(customerID) {
         const customer = await this.customerModel.findById(customerID).exec();
+        common_1.Logger.log('retrieved customer: ' + customerID);
         return customer;
     }
     async addCustomer(createCustomerDTO) {
         const newCustomer = new this.customerModel(createCustomerDTO);
+        common_1.Logger.log('added customer: ' + newCustomer.name);
         return newCustomer.save();
     }
     async updateCustomer(customerID, createCustomerDTO) {
         const updatedCustomer = await this.customerModel.findByIdAndUpdate(customerID, createCustomerDTO, { new: true });
+        common_1.Logger.log('updated customer: ' + updatedCustomer.name);
         return updatedCustomer;
     }
     async deleteCustomer(customerID) {
         const deletedCustomer = await this.customerModel.findByIdAndRemove(customerID);
+        common_1.Logger.log('deleted customer: ' + deletedCustomer.name);
         return deletedCustomer;
     }
     async getCustomersSortByEmployeesNumber() {

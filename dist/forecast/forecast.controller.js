@@ -13,36 +13,58 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ForecastController = void 0;
+const openapi = require("@nestjs/swagger");
 const common_1 = require("@nestjs/common");
+const swagger_1 = require("@nestjs/swagger");
 const forecast_service_1 = require("./services/forecast.service");
 let ForecastController = class ForecastController {
     constructor(forecastService) {
         this.forecastService = forecastService;
     }
     async getForecast(res) {
-        const forecast = await this.forecastService.getForecast();
-        return res.status(common_1.HttpStatus.OK).json(forecast);
+        try {
+            const forecast = await this.forecastService.getForecast();
+            return res.status(common_1.HttpStatus.OK).json(forecast);
+        }
+        catch (error) {
+            return res.status(common_1.HttpStatus.INTERNAL_SERVER_ERROR).json(error.message);
+        }
     }
-    async getTopReport(res, top) {
-        const topReport = await this.forecastService.getTopReport(top);
-        return res.status(common_1.HttpStatus.OK).json(topReport);
+    async getTopReport(res, topCustomerNumber) {
+        try {
+            const topReport = await this.forecastService.getTopReport(topCustomerNumber);
+            return res.status(common_1.HttpStatus.OK).json(topReport);
+        }
+        catch (error) {
+            return res.status(common_1.HttpStatus.INTERNAL_SERVER_ERROR).json(error.message);
+        }
     }
 };
 __decorate([
+    swagger_1.ApiOperation({ summary: 'Retrieve a list of customers that will have rain for the next 5 days with the name, contact and phone number and for when the rain is expected.' }),
+    swagger_1.ApiOkResponse({ description: 'Retrieved forecast data successfully' }),
+    swagger_1.ApiInternalServerErrorResponse({ description: 'Internal server error' }),
     common_1.Get('forecast'),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, common_1.Res()),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object]),
     __metadata("design:returntype", Promise)
 ], ForecastController.prototype, "getForecast", null);
 __decorate([
+    swagger_1.ApiOperation({ summary: 'Retrieve rain forecast report for the next 5 days for given top customers.' }),
+    swagger_1.ApiParam({ name: 'topCustomerNumber', required: true, description: 'The top number of companies with most employees' }),
+    swagger_1.ApiOkResponse({ description: 'Retrieved forecast data successfully' }),
+    swagger_1.ApiInternalServerErrorResponse({ description: 'Internal server error' }),
     common_1.Get('report'),
+    openapi.ApiResponse({ status: 200, type: Object }),
     __param(0, common_1.Res()), __param(1, common_1.Query('top')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [Object, Object]),
     __metadata("design:returntype", Promise)
 ], ForecastController.prototype, "getTopReport", null);
 ForecastController = __decorate([
+    swagger_1.ApiTags('forecast'),
     common_1.Controller(),
     __metadata("design:paramtypes", [forecast_service_1.ForecastService])
 ], ForecastController);
